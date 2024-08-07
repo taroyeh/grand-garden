@@ -22,12 +22,15 @@
             } else {
                 $('#mailbox').text("");
                 $('#addr').text("");
-			}
+            }
         });
     });
     
     function validate(code) {
         try {
+            if (!/\d{1,2}[ABCD][123567]/.test(code)) {
+                return false;
+            }
             const codeBuilding = code[code.length - 2];
             const codeNo = parseInt(code[code.length - 1]);
             const codeFloor = parseInt(code.substring(0, code.length - 2));
@@ -37,7 +40,7 @@
             if (codeNo < 1 || codeNo > 7 || codeNo == 4) {
                 return false;
             }
-            if (codeFloor < 1 || codeFloor > 18) {
+            if (codeFloor < 2 || codeFloor > 18) {
                 return false;
             }
             return true;
@@ -50,7 +53,7 @@
         const codeBuilding = code[code.length - 2];
         const codeNo = parseInt(code[code.length - 1]);
         const codeFloor = code.substring(0, code.length - 2);
-        const building = codeBuilding == 'A' || codeBuilding == 'B' ? "(前棟) 1|" : "(後棟) 3|";
+        const building = codeBuilding == 'A' || codeBuilding == 'B' ? "(前棟) 1 | " : "(後棟) 3 | ";
         const offset = codeBuilding == 'A' || codeBuilding == 'C' ? 0 : (codeNo >= 5 ? 6 : 7);
         return building + codeFloor + "F-" + (codeNo + offset);
     }
