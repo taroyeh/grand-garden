@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>順天謙華 - 戶別轉換</title>
+<style>
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+</style>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#code').on('keyup', function(e) {
+            const code = $(this).val().toUpperCase();
+            if (validate(code)) {
+                $('#mailbox').text(mapMailbox(code));
+                $('#addr').text(mapAddr(code));
+            } else {
+                $('#mailbox').text("");
+                $('#addr').text("");
+			}
+        });
+    });
+    
+    function validate(code) {
+        try {
+            const codeBuilding = code[code.length - 2];
+            const codeNo = parseInt(code[code.length - 1]);
+            const codeFloor = parseInt(code.substring(0, code.length - 2));
+            if (codeBuilding != "A" && codeBuilding != "B" && codeBuilding != "C" && codeBuilding != "D") {
+                return false;
+            }
+            if (codeNo < 1 || codeNo > 7 || codeNo == 4) {
+                return false;
+            }
+            if (codeFloor < 1 || codeFloor > 18) {
+                return false;
+            }
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+    
+    function mapMailbox(code) {
+        const codeBuilding = code[code.length - 2];
+        const codeNo = parseInt(code[code.length - 1]);
+        const codeFloor = code.substring(0, code.length - 2);
+        const building = codeBuilding == 'A' || codeBuilding == 'B' ? "(前棟) 1|" : "(後棟) 3|";
+        const offset = codeBuilding == 'A' || codeBuilding == 'C' ? 0 : (codeNo >= 5 ? 6 : 7);
+        return building + codeFloor + "F-" + (codeNo + offset);
+    }
+    
+    function mapAddr(code) {
+        const codeBuilding = code[code.length - 2];
+        const codeNo = parseInt(code[code.length - 1]);
+        const codeFloor = code.substring(0, code.length - 2);
+        const num = codeBuilding == 'A' || codeBuilding == 'B' ? "1" : "3";
+        const offset = codeBuilding == 'A' || codeBuilding == 'C' ? 0 : (codeNo >= 5 ? 6 : 7);
+        return "台中市北區北屯路" + num + "號" + codeFloor + "樓之" + (codeNo + offset);
+    }
+
+</script>
+</head>
+
+<body>
+
+<div class="container">
+    <div>
+        <div>
+            戶別：<input type="text" id="code" />
+        </div>
+        <div>
+            信箱：<span id="mailbox"></span>
+        </div>
+        <div>
+            地址：<span id="addr"></span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
