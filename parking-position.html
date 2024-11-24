@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>車位位置查詢</title>
+    </head>
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous" />
+
+    <script
+        src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+        crossorigin="anonymous"></script>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <script>
+
+    const data = {
+        pathPoints: {
+            "b16": `
+                M 1038,89
+                l -118,33
+                a 79,88 0 0,0 -31,13
+            `,
+            "b17": `
+                M 1038,89
+                l -118,33
+                a 79,88 0 0,0 -56,44
+            `,
+            "b18": `
+                M 1038,89
+                l -118,33
+                a 79,88 0 0,0 -65,86
+            `,
+            "b1a": `
+                M 1038,89
+                l -118,33
+                a 79,88 0 0,0 -65,86
+                V 291
+            `,
+            "b2a": `
+                M 1017,121
+            `,
+            "b2b": `
+                M 1017,121
+                h -158
+                v 172
+            `,
+            "b3a": `
+                M 1017,121
+            `,
+            "b3b": `
+                M 1017,121
+                h -158
+                v 172
+            `,
+            "b4a": `
+                M 1017,121
+            `,
+            "b4b": `
+                M 1017,121
+                h -158
+                v 172
+            `
+        },
+        sizes: {
+            "l": { w: 22, h: 48 }, // 大車位
+            "s": { w: 20, h: 48 }, // 小車位
+            "h": { w: 52, h: 18 }, // 橫向殘障車位
+            "v": { w: 18, h: 52 }, // 縱向殘障車位
+            "5": { w: 48, h: 22 }, // 5 號車位
+            "8": { w: 48, h: 22 }  // 8 號車位
+        },
+        parkingNum: {
+            "1"    : { prevPoint: "b1a", size: "l", x: 982, y: 200, entry: "b" },
+            "2"    : { prevPoint: "b1a", size: "l", x: 960, y: 200, entry: "b" },
+            "3"    : { prevPoint: "b1a", size: "l", x: 938, y: 200, entry: "b" },
+            "3-1"  : { prevPoint: "b1a", size: "l", x: 916, y: 200, entry: "b" },
+            "5"    : { prevPoint: "b4b", size: "5", x:1004, y: 284, entry: "l" },
+            "6"    : { prevPoint: "b16", size: "h", x: 793, y: 126, entry: "r" },
+            "7"    : { prevPoint: "b17", size: "h", x: 793, y: 157, entry: "r" },
+            "8"    : { prevPoint: "b18", size: "8", x: 793, y: 197, entry: "r" },
+            "9"    : { prevPoint: "b1a", size: "l", x: 681, y: 216, entry: "b" },
+            "10"   : { prevPoint: "b1a", size: "l", x: 659, y: 216, entry: "b" },
+            "11"   : { prevPoint: "b1a", size: "l", x: 637, y: 216, entry: "b" },
+            "12"   : { prevPoint: "b1a", size: "l", x: 615, y: 216, entry: "b" },
+            "13"   : { prevPoint: "b1a", size: "l", x: 579, y: 216, entry: "b" },
+            "13-1" : { prevPoint: "b1a", size: "s", x: 559, y: 216, entry: "b" },
+            "15"   : { prevPoint: "b1a", size: "l", x: 537, y: 216, entry: "b" },
+            "16"   : { prevPoint: "b1a", size: "l", x: 515, y: 216, entry: "b" },
+            "17"   : { prevPoint: "b1a", size: "l", x: 471, y: 218, entry: "b" },
+            "18"   : { prevPoint: "b1a", size: "l", x: 439, y: 220, entry: "b" },
+            "19"   : { prevPoint: "b1a", size: "l", x: 417, y: 220, entry: "b" },
+            "20"   : { prevPoint: "b1a", size: "s", x: 397, y: 220, entry: "b" },
+            "21"   : { prevPoint: "b1a", size: "l", x: 375, y: 220, entry: "b" },
+            "22"   : { prevPoint: "b1a", size: "l", x: 340, y: 220, entry: "b" },
+            "23"   : { prevPoint: "b1a", size: "l", x: 318, y: 220, entry: "b" },
+            "23-1" : { prevPoint: "b1a", size: "l", x: 295, y: 220, entry: "b" },
+            "25"   : { prevPoint: "b1a", size: "l", x: 273, y: 220, entry: "b" },
+            "26"   : { prevPoint: "b1a", size: "l", x: 140, y: 220, entry: "b" },
+            "27"   : { prevPoint: "b1a", size: "l", x: 118, y: 220, entry: "b" },
+            "28"   : { prevPoint: "b1a", size: "l", x:  96, y: 220, entry: "b" },
+            "29"   : { prevPoint: "b1a", size: "l", x:  74, y: 220, entry: "b" },
+            "30"   : { prevPoint: "b1a", size: "l", x:  38, y: 220, entry: "b" },
+            "31"   : { prevPoint: "b1a", size: "l", x:  16, y: 220, entry: "b" },
+            "32"   : { prevPoint: "b1a", size: "l", x:  16, y: 320, entry: "t" },
+            "33"   : { prevPoint: "b1a", size: "l", x:  38, y: 320, entry: "t" },
+            "33-1" : { prevPoint: "b1a", size: "l", x:  73, y: 320, entry: "t" },
+            "35"   : { prevPoint: "b1a", size: "l", x:  95, y: 320, entry: "t" },
+            "36"   : { prevPoint: "b1a", size: "l", x: 117, y: 320, entry: "t" },
+            "37"   : { prevPoint: "b1a", size: "l", x: 139, y: 320, entry: "t" },
+            "38"   : { prevPoint: "b1a", size: "v", x: 171, y: 320, entry: "t" },
+            "39"   : { prevPoint: "b1a", size: "v", x: 201, y: 320, entry: "t" },
+            "40"   : { prevPoint: "b1a", size: "l", x: 220, y: 320, entry: "t" },
+            "41"   : { prevPoint: "b1a", size: "l", x: 242, y: 320, entry: "t" },
+            "42"   : { prevPoint: "b1a", size: "l", x: 275, y: 320, entry: "t" },
+            "43"   : { prevPoint: "b1a", size: "l", x: 297, y: 320, entry: "t" },
+            "43-1" : { prevPoint: "b1a", size: "l", x: 319, y: 320, entry: "t" },
+            "45"   : { prevPoint: "b1a", size: "l", x: 341, y: 320, entry: "t" },
+            "46"   : { prevPoint: "b1a", size: "l", x: 375, y: 320, entry: "t" },
+            "47"   : { prevPoint: "b1a", size: "s", x: 397, y: 320, entry: "t" },
+            "48"   : { prevPoint: "b1a", size: "l", x: 417, y: 320, entry: "t" },
+            "49"   : { prevPoint: "b1a", size: "l", x: 439, y: 320, entry: "t" },
+            "50"   : { prevPoint: "b1a", size: "l", x: 466, y: 320, entry: "t" },
+            "51"   : { prevPoint: "b1a", size: "l", x: 488, y: 320, entry: "t" },
+            "52"   : { prevPoint: "b1a", size: "l", x: 515, y: 320, entry: "t" },
+            "53"   : { prevPoint: "b1a", size: "l", x: 537, y: 320, entry: "t" },
+            "53-1" : { prevPoint: "b1a", size: "s", x: 559, y: 320, entry: "t" },
+            "55"   : { prevPoint: "b1a", size: "l", x: 579, y: 320, entry: "t" },
+            "56"   : { prevPoint: "b1a", size: "l", x: 614, y: 320, entry: "t" },
+            "57"   : { prevPoint: "b1a", size: "l", x: 636, y: 320, entry: "t" },
+            "58"   : { prevPoint: "b1a", size: "l", x: 658, y: 320, entry: "t" },
+            "59"   : { prevPoint: "b1a", size: "l", x: 680, y: 320, entry: "t" },
+            "60"   : { prevPoint: "b1a", size: "v", x: 711, y: 320, entry: "t" },
+            "61"   : { prevPoint: "b1a", size: "v", x: 742, y: 320, entry: "t" },
+            "62"   : { prevPoint: "b1a", size: "l", x: 760, y: 320, entry: "t" },
+            "63"   : { prevPoint: "b1a", size: "l", x: 783, y: 320, entry: "t" },
+            "63-1" : { prevPoint: "b1a", size: "l", x: 815, y: 320, entry: "t" },
+            "65"   : { prevPoint: "b1a", size: "l", x: 837, y: 320, entry: "t" },
+            "66"   : { prevPoint: "b1a", size: "l", x: 859, y: 320, entry: "t" },
+            "67"   : { prevPoint: "b1a", size: "l", x: 881, y: 320, entry: "t" },
+            "68"   : { prevPoint: "b2a", size: "l", x: 981, y:  47, entry: "b" },
+            "69"   : { prevPoint: "b2a", size: "l", x: 959, y:  47, entry: "b" },
+            "70"   : { prevPoint: "b2a", size: "l", x: 937, y:  47, entry: "b" },
+            "71"   : { prevPoint: "b2a", size: "l", x: 915, y:  47, entry: "b" },
+            "72"   : { prevPoint: "b2a", size: "l", x: 881, y:  47, entry: "b" },
+            "73"   : { prevPoint: "b2a", size: "l", x: 859, y:  47, entry: "b" },
+            "73-1" : { prevPoint: "b2a", size: "l", x: 837, y:  47, entry: "b" },
+            "75"   : { prevPoint: "b2a", size: "l", x: 815, y:  47, entry: "b" },
+            "76"   : { prevPoint: "b2a", size: "l", x: 781, y:  47, entry: "b" },
+            "77"   : { prevPoint: "b2a", size: "l", x: 759, y:  47, entry: "b" },
+            "78"   : { prevPoint: "b2a", size: "l", x: 736, y:  47, entry: "b" },
+            "79"   : { prevPoint: "b2a", size: "l", x: 714, y:  47, entry: "b" },
+            "80"   : { prevPoint: "b2a", size: "l", x: 680, y:  47, entry: "b" },
+            "81"   : { prevPoint: "b2a", size: "l", x: 658, y:  47, entry: "b" },
+            "82"   : { prevPoint: "b2a", size: "l", x: 636, y:  47, entry: "b" },
+            "83"   : { prevPoint: "b2a", size: "l", x: 614, y:  47, entry: "b" },
+            "83-1" : { prevPoint: "b2a", size: "l", x: 579, y:  47, entry: "b" },
+            "85"   : { prevPoint: "b2a", size: "s", x: 559, y:  47, entry: "b" },
+            "86"   : { prevPoint: "b2a", size: "l", x: 537, y:  47, entry: "b" },
+            "87"   : { prevPoint: "b2a", size: "l", x: 515, y:  47, entry: "b" },
+            "88"   : { prevPoint: "b2a", size: "l", x: 488, y:  47, entry: "b" },
+            "89"   : { prevPoint: "b2a", size: "l", x: 466, y:  47, entry: "b" },
+            "90"   : { prevPoint: "b2a", size: "l", x: 439, y:  47, entry: "b" },
+            "91"   : { prevPoint: "b2a", size: "l", x: 417, y:  47, entry: "b" },
+            "92"   : { prevPoint: "b2a", size: "s", x: 397, y:  47, entry: "b" },
+            "93"   : { prevPoint: "b2a", size: "l", x: 375, y:  47, entry: "b" },
+            "93-1" : { prevPoint: "b2a", size: "l", x: 340, y:  47, entry: "b" },
+            "95"   : { prevPoint: "b2a", size: "l", x: 318, y:  47, entry: "b" },
+            "96"   : { prevPoint: "b2a", size: "l", x: 297, y:  47, entry: "b" },
+            "97"   : { prevPoint: "b2a", size: "l", x: 275, y:  47, entry: "b" },
+            "98"   : { prevPoint: "b2a", size: "l", x: 241, y:  47, entry: "b" },
+            "99"   : { prevPoint: "b2a", size: "l", x: 218, y:  47, entry: "b" },
+            "100"  : { prevPoint: "b2a", size: "l", x: 195, y:  47, entry: "b" },
+            "101"  : { prevPoint: "b2a", size: "l", x: 173, y:  47, entry: "b" },
+            "102"  : { prevPoint: "b2a", size: "l", x: 139, y:  47, entry: "b" },
+            "103"  : { prevPoint: "b2a", size: "l", x: 117, y:  47, entry: "b" },
+            "103-1": { prevPoint: "b2a", size: "l", x:  95, y:  47, entry: "b" },
+            "105"  : { prevPoint: "b2a", size: "l", x:  73, y:  47, entry: "b" },
+            "106"  : { prevPoint: "b2a", size: "l", x:  38, y:  47, entry: "b" },
+            "107"  : { prevPoint: "b2a", size: "l", x:  16, y:  47, entry: "b" },
+            "108"  : { prevPoint: "b2a", size: "l", x:  16, y: 147, entry: "t" },
+            "109"  : { prevPoint: "b2a", size: "l", x:  38, y: 147, entry: "t" },
+            "110"  : { prevPoint: "b2a", size: "l", x:  74, y: 147, entry: "t" },
+            "111"  : { prevPoint: "b2a", size: "l", x:  96, y: 147, entry: "t" },
+            "112"  : { prevPoint: "b2a", size: "l", x: 119, y: 147, entry: "t" },
+            "113"  : { prevPoint: "b2a", size: "l", x: 141, y: 147, entry: "t" },
+            "113-1": { prevPoint: "b2a", size: "l", x: 273, y: 147, entry: "t" },
+            "115"  : { prevPoint: "b2a", size: "l", x: 295, y: 147, entry: "t" },
+            "116"  : { prevPoint: "b2a", size: "l", x: 318, y: 147, entry: "t" },
+            "117"  : { prevPoint: "b2a", size: "l", x: 340, y: 147, entry: "t" },
+            "118"  : { prevPoint: "b2a", size: "l", x: 375, y: 147, entry: "t" },
+            "119"  : { prevPoint: "b2a", size: "s", x: 397, y: 147, entry: "t" },
+            "120"  : { prevPoint: "b2a", size: "l", x: 417, y: 147, entry: "t" },
+            "121"  : { prevPoint: "b2a", size: "l", x: 439, y: 147, entry: "t" },
+            "122"  : { prevPoint: "b2a", size: "l", x: 466, y: 147, entry: "t" },
+            "123"  : { prevPoint: "b2a", size: "l", x: 488, y: 147, entry: "t" },
+            "123-1": { prevPoint: "b2a", size: "l", x: 515, y: 147, entry: "t" },
+            "125"  : { prevPoint: "b2a", size: "l", x: 537, y: 147, entry: "t" },
+            "126"  : { prevPoint: "b2a", size: "s", x: 559, y: 147, entry: "t" },
+            "127"  : { prevPoint: "b2a", size: "l", x: 579, y: 147, entry: "t" },
+            "128"  : { prevPoint: "b2a", size: "l", x: 615, y: 151, entry: "t" },
+            "129"  : { prevPoint: "b2a", size: "l", x: 637, y: 151, entry: "t" },
+            "130"  : { prevPoint: "b2a", size: "l", x: 659, y: 151, entry: "t" },
+            "131"  : { prevPoint: "b2a", size: "l", x: 681, y: 151, entry: "t" },
+            "132"  : { prevPoint: "b2a", size: "l", x: 813, y: 159, entry: "t" },
+            "133"  : { prevPoint: "b2a", size: "l", x: 915, y: 159, entry: "t" },
+            "133-1": { prevPoint: "b2a", size: "l", x: 937, y: 159, entry: "t" },
+            "135"  : { prevPoint: "b2a", size: "l", x: 959, y: 159, entry: "t" },
+            "136"  : { prevPoint: "b2a", size: "l", x: 981, y: 159, entry: "t" },
+            "137"  : { prevPoint: "b2b", size: "l", x: 981, y: 208, entry: "b" },
+            "138"  : { prevPoint: "b2b", size: "l", x: 959, y: 208, entry: "b" },
+            "139"  : { prevPoint: "b2b", size: "l", x: 937, y: 208, entry: "b" },
+            "140"  : { prevPoint: "b2b", size: "l", x: 915, y: 208, entry: "b" },
+            "141"  : { prevPoint: "b2b", size: "l", x: 813, y: 208, entry: "b" },
+            "142"  : { prevPoint: "b2b", size: "l", x: 681, y: 216, entry: "b" },
+            "143"  : { prevPoint: "b2b", size: "l", x: 659, y: 216, entry: "b" },
+            "143-1": { prevPoint: "b2b", size: "l", x: 637, y: 216, entry: "b" },
+            "145"  : { prevPoint: "b2b", size: "l", x: 615, y: 216, entry: "b" },
+            "146"  : { prevPoint: "b2b", size: "l", x: 579, y: 220, entry: "b" },
+            "147"  : { prevPoint: "b2b", size: "s", x: 559, y: 220, entry: "b" },
+            "148"  : { prevPoint: "b2b", size: "l", x: 537, y: 220, entry: "b" },
+            "149"  : { prevPoint: "b2b", size: "l", x: 515, y: 220, entry: "b" },
+            "150"  : { prevPoint: "b2b", size: "l", x: 488, y: 220, entry: "b" },
+            "151"  : { prevPoint: "b2b", size: "l", x: 466, y: 220, entry: "b" },
+            "152"  : { prevPoint: "b2b", size: "l", x: 439, y: 220, entry: "b" },
+            "153"  : { prevPoint: "b2b", size: "l", x: 417, y: 220, entry: "b" },
+            "153-1": { prevPoint: "b2b", size: "s", x: 397, y: 220, entry: "b" },
+            "155"  : { prevPoint: "b2b", size: "l", x: 375, y: 220, entry: "b" },
+            "156"  : { prevPoint: "b2b", size: "l", x: 340, y: 220, entry: "b" },
+            "157"  : { prevPoint: "b2b", size: "l", x: 318, y: 220, entry: "b" },
+            "158"  : { prevPoint: "b2b", size: "l", x: 295, y: 220, entry: "b" },
+            "159"  : { prevPoint: "b2b", size: "l", x: 273, y: 220, entry: "b" },
+            "160"  : { prevPoint: "b2b", size: "l", x: 141, y: 220, entry: "b" },
+            "161"  : { prevPoint: "b2b", size: "l", x: 119, y: 220, entry: "b" },
+            "162"  : { prevPoint: "b2b", size: "l", x:  96, y: 220, entry: "b" },
+            "163"  : { prevPoint: "b2b", size: "l", x:  74, y: 220, entry: "b" },
+            "163-1": { prevPoint: "b2b", size: "l", x:  38, y: 220, entry: "b" },
+            "165"  : { prevPoint: "b2b", size: "l", x:  16, y: 220, entry: "b" },
+            "166"  : { prevPoint: "b2b", size: "l", x:  16, y: 320, entry: "t" },
+            "167"  : { prevPoint: "b2b", size: "l", x:  38, y: 320, entry: "t" },
+            "168"  : { prevPoint: "b2b", size: "l", x:  74, y: 320, entry: "t" },
+            "169"  : { prevPoint: "b2b", size: "l", x:  96, y: 320, entry: "t" },
+            "170"  : { prevPoint: "b2b", size: "l", x: 117, y: 320, entry: "t" },
+            "171"  : { prevPoint: "b2b", size: "l", x: 139, y: 320, entry: "t" },
+            "172"  : { prevPoint: "b2b", size: "l", x: 173, y: 320, entry: "t" },
+            "173"  : { prevPoint: "b2b", size: "l", x: 196, y: 320, entry: "t" },
+            "173-1": { prevPoint: "b2b", size: "l", x: 218, y: 320, entry: "t" },
+            "175"  : { prevPoint: "b2b", size: "l", x: 241, y: 320, entry: "t" },
+            "176"  : { prevPoint: "b2b", size: "l", x: 275, y: 320, entry: "t" },
+            "177"  : { prevPoint: "b2b", size: "l", x: 297, y: 320, entry: "t" },
+            "178"  : { prevPoint: "b2b", size: "l", x: 318, y: 320, entry: "t" },
+            "179"  : { prevPoint: "b2b", size: "l", x: 340, y: 320, entry: "t" },
+            "180"  : { prevPoint: "b2b", size: "l", x: 375, y: 320, entry: "t" },
+            "181"  : { prevPoint: "b2b", size: "s", x: 397, y: 320, entry: "t" },
+            "182"  : { prevPoint: "b2b", size: "l", x: 417, y: 320, entry: "t" },
+            "183"  : { prevPoint: "b2b", size: "l", x: 439, y: 320, entry: "t" },
+            "183-1": { prevPoint: "b2b", size: "l", x: 466, y: 320, entry: "t" },
+            "185"  : { prevPoint: "b2b", size: "l", x: 488, y: 320, entry: "t" },
+            "186"  : { prevPoint: "b2b", size: "l", x: 515, y: 320, entry: "t" },
+            "187"  : { prevPoint: "b2b", size: "l", x: 537, y: 320, entry: "t" },
+            "188"  : { prevPoint: "b2b", size: "s", x: 559, y: 320, entry: "t" },
+            "189"  : { prevPoint: "b2b", size: "l", x: 579, y: 320, entry: "t" },
+            "190"  : { prevPoint: "b2b", size: "l", x: 614, y: 320, entry: "t" },
+            "191"  : { prevPoint: "b2b", size: "l", x: 636, y: 320, entry: "t" },
+            "192"  : { prevPoint: "b2b", size: "l", x: 658, y: 320, entry: "t" },
+            "193"  : { prevPoint: "b2b", size: "l", x: 680, y: 320, entry: "t" },
+            "193-1": { prevPoint: "b2b", size: "l", x: 714, y: 320, entry: "t" },
+            "195"  : { prevPoint: "b2b", size: "l", x: 736, y: 320, entry: "t" },
+            "196"  : { prevPoint: "b2b", size: "l", x: 759, y: 320, entry: "t" },
+            "197"  : { prevPoint: "b2b", size: "l", x: 782, y: 320, entry: "t" },
+            "198"  : { prevPoint: "b2b", size: "l", x: 815, y: 320, entry: "t" },
+            "199"  : { prevPoint: "b2b", size: "l", x: 837, y: 320, entry: "t" },
+            "200"  : { prevPoint: "b2b", size: "l", x: 859, y: 320, entry: "t" },
+            "201"  : { prevPoint: "b2b", size: "l", x: 881, y: 320, entry: "t" },
+            "202"  : { prevPoint: "b2b", size: "l", x: 915, y: 320, entry: "t" },
+            "203"  : { prevPoint: "b2b", size: "l", x: 937, y: 320, entry: "t" },
+            "203-1": { prevPoint: "b2b", size: "l", x: 959, y: 320, entry: "t" },
+            "205"  : { prevPoint: "b2b", size: "l", x: 981, y: 320, entry: "t" },
+            "206"  : { prevPoint: "b3a", size: "l", x: 981, y:  47, entry: "b" },
+            "207"  : { prevPoint: "b3a", size: "l", x: 959, y:  47, entry: "b" },
+            "208"  : { prevPoint: "b3a", size: "l", x: 937, y:  47, entry: "b" },
+            "209"  : { prevPoint: "b3a", size: "l", x: 915, y:  47, entry: "b" },
+            "210"  : { prevPoint: "b3a", size: "l", x: 881, y:  47, entry: "b" },
+            "211"  : { prevPoint: "b3a", size: "l", x: 859, y:  47, entry: "b" },
+            "212"  : { prevPoint: "b3a", size: "l", x: 837, y:  47, entry: "b" },
+            "213"  : { prevPoint: "b3a", size: "l", x: 815, y:  47, entry: "b" },
+            "213-1": { prevPoint: "b3a", size: "l", x: 781, y:  47, entry: "b" },
+            "215"  : { prevPoint: "b3a", size: "l", x: 759, y:  47, entry: "b" },
+            "216"  : { prevPoint: "b3a", size: "l", x: 736, y:  47, entry: "b" },
+            "217"  : { prevPoint: "b3a", size: "l", x: 714, y:  47, entry: "b" },
+            "218"  : { prevPoint: "b3a", size: "l", x: 680, y:  47, entry: "b" },
+            "219"  : { prevPoint: "b3a", size: "l", x: 658, y:  47, entry: "b" },
+            "220"  : { prevPoint: "b3a", size: "l", x: 636, y:  47, entry: "b" },
+            "221"  : { prevPoint: "b3a", size: "l", x: 614, y:  47, entry: "b" },
+            "222"  : { prevPoint: "b3a", size: "l", x: 579, y:  47, entry: "b" },
+            "223"  : { prevPoint: "b3a", size: "s", x: 559, y:  47, entry: "b" },
+            "223-1": { prevPoint: "b3a", size: "l", x: 537, y:  47, entry: "b" },
+            "225"  : { prevPoint: "b3a", size: "l", x: 515, y:  47, entry: "b" },
+            "226"  : { prevPoint: "b3a", size: "l", x: 488, y:  47, entry: "b" },
+            "227"  : { prevPoint: "b3a", size: "l", x: 466, y:  47, entry: "b" },
+            "228"  : { prevPoint: "b3a", size: "l", x: 439, y:  47, entry: "b" },
+            "229"  : { prevPoint: "b3a", size: "l", x: 417, y:  47, entry: "b" },
+            "230"  : { prevPoint: "b3a", size: "s", x: 397, y:  47, entry: "b" },
+            "231"  : { prevPoint: "b3a", size: "l", x: 375, y:  47, entry: "b" },
+            "232"  : { prevPoint: "b3a", size: "l", x: 340, y:  47, entry: "b" },
+            "233"  : { prevPoint: "b3a", size: "l", x: 318, y:  47, entry: "b" },
+            "233-1": { prevPoint: "b3a", size: "l", x: 297, y:  47, entry: "b" },
+            "235"  : { prevPoint: "b3a", size: "l", x: 275, y:  47, entry: "b" },
+            "236"  : { prevPoint: "b3a", size: "l", x: 241, y:  47, entry: "b" },
+            "237"  : { prevPoint: "b3a", size: "l", x: 218, y:  47, entry: "b" },
+            "238"  : { prevPoint: "b3a", size: "l", x: 195, y:  47, entry: "b" },
+            "239"  : { prevPoint: "b3a", size: "l", x: 173, y:  47, entry: "b" },
+            "240"  : { prevPoint: "b3a", size: "l", x: 139, y:  47, entry: "b" },
+            "241"  : { prevPoint: "b3a", size: "l", x: 117, y:  47, entry: "b" },
+            "242"  : { prevPoint: "b3a", size: "l", x:  95, y:  47, entry: "b" },
+            "243"  : { prevPoint: "b3a", size: "l", x:  73, y:  47, entry: "b" },
+            "243-1": { prevPoint: "b3a", size: "l", x:  38, y:  47, entry: "b" },
+            "245"  : { prevPoint: "b3a", size: "l", x:  16, y:  47, entry: "b" },
+            "246"  : { prevPoint: "b3a", size: "l", x:  16, y: 147, entry: "t" },
+            "247"  : { prevPoint: "b3a", size: "l", x:  38, y: 147, entry: "t" },
+            "248"  : { prevPoint: "b3a", size: "l", x:  74, y: 147, entry: "t" },
+            "249"  : { prevPoint: "b3a", size: "l", x:  96, y: 147, entry: "t" },
+            "250"  : { prevPoint: "b3a", size: "l", x: 119, y: 147, entry: "t" },
+            "251"  : { prevPoint: "b3a", size: "l", x: 141, y: 147, entry: "t" },
+            "252"  : { prevPoint: "b3a", size: "l", x: 273, y: 147, entry: "t" },
+            "253"  : { prevPoint: "b3a", size: "l", x: 295, y: 147, entry: "t" },
+            "253-1": { prevPoint: "b3a", size: "l", x: 318, y: 147, entry: "t" },
+            "255"  : { prevPoint: "b3a", size: "l", x: 340, y: 147, entry: "t" },
+            "256"  : { prevPoint: "b3a", size: "l", x: 375, y: 147, entry: "t" },
+            "257"  : { prevPoint: "b3a", size: "s", x: 397, y: 147, entry: "t" },
+            "258"  : { prevPoint: "b3a", size: "l", x: 417, y: 147, entry: "t" },
+            "259"  : { prevPoint: "b3a", size: "l", x: 439, y: 147, entry: "t" },
+            "260"  : { prevPoint: "b3a", size: "l", x: 466, y: 147, entry: "t" },
+            "261"  : { prevPoint: "b3a", size: "l", x: 488, y: 147, entry: "t" },
+            "262"  : { prevPoint: "b3a", size: "l", x: 515, y: 147, entry: "t" },
+            "263"  : { prevPoint: "b3a", size: "l", x: 537, y: 147, entry: "t" },
+            "263-1": { prevPoint: "b3a", size: "s", x: 559, y: 147, entry: "t" },
+            "265"  : { prevPoint: "b3a", size: "l", x: 579, y: 147, entry: "t" },
+            "266"  : { prevPoint: "b3a", size: "l", x: 615, y: 151, entry: "t" },
+            "267"  : { prevPoint: "b3a", size: "l", x: 637, y: 151, entry: "t" },
+            "268"  : { prevPoint: "b3a", size: "l", x: 659, y: 151, entry: "t" },
+            "269"  : { prevPoint: "b3a", size: "l", x: 681, y: 151, entry: "t" },
+            "270"  : { prevPoint: "b3a", size: "l", x: 813, y: 159, entry: "t" },
+            "271"  : { prevPoint: "b3a", size: "l", x: 915, y: 159, entry: "t" },
+            "272"  : { prevPoint: "b3a", size: "l", x: 937, y: 159, entry: "t" },
+            "273"  : { prevPoint: "b3a", size: "l", x: 959, y: 159, entry: "t" },
+            "273-1": { prevPoint: "b3a", size: "l", x: 981, y: 159, entry: "t" },
+            "275"  : { prevPoint: "b3b", size: "l", x: 981, y: 208, entry: "b" },
+            "276"  : { prevPoint: "b3b", size: "l", x: 959, y: 208, entry: "b" },
+            "277"  : { prevPoint: "b3b", size: "l", x: 937, y: 208, entry: "b" },
+            "278"  : { prevPoint: "b3b", size: "l", x: 915, y: 208, entry: "b" },
+            "279"  : { prevPoint: "b3b", size: "l", x: 813, y: 208, entry: "b" },
+            "280"  : { prevPoint: "b3b", size: "l", x: 681, y: 216, entry: "b" },
+            "281"  : { prevPoint: "b3b", size: "l", x: 659, y: 216, entry: "b" },
+            "282"  : { prevPoint: "b3b", size: "l", x: 637, y: 216, entry: "b" },
+            "283"  : { prevPoint: "b3b", size: "l", x: 615, y: 216, entry: "b" },
+            "283-1": { prevPoint: "b3b", size: "l", x: 579, y: 220, entry: "b" },
+            "285"  : { prevPoint: "b3b", size: "s", x: 559, y: 220, entry: "b" },
+            "286"  : { prevPoint: "b3b", size: "l", x: 537, y: 220, entry: "b" },
+            "287"  : { prevPoint: "b3b", size: "l", x: 515, y: 220, entry: "b" },
+            "288"  : { prevPoint: "b3b", size: "l", x: 488, y: 220, entry: "b" },
+            "289"  : { prevPoint: "b3b", size: "l", x: 466, y: 220, entry: "b" },
+            "290"  : { prevPoint: "b3b", size: "l", x: 439, y: 220, entry: "b" },
+            "291"  : { prevPoint: "b3b", size: "l", x: 417, y: 220, entry: "b" },
+            "292"  : { prevPoint: "b3b", size: "s", x: 397, y: 220, entry: "b" },
+            "293"  : { prevPoint: "b3b", size: "l", x: 375, y: 220, entry: "b" },
+            "293-1": { prevPoint: "b3b", size: "l", x: 340, y: 220, entry: "b" },
+            "295"  : { prevPoint: "b3b", size: "l", x: 318, y: 220, entry: "b" },
+            "296"  : { prevPoint: "b3b", size: "l", x: 295, y: 220, entry: "b" },
+            "297"  : { prevPoint: "b3b", size: "l", x: 273, y: 220, entry: "b" },
+            "298"  : { prevPoint: "b3b", size: "l", x: 141, y: 220, entry: "b" },
+            "299"  : { prevPoint: "b3b", size: "l", x: 119, y: 220, entry: "b" },
+            "300"  : { prevPoint: "b3b", size: "l", x:  96, y: 220, entry: "b" },
+            "301"  : { prevPoint: "b3b", size: "l", x:  74, y: 220, entry: "b" },
+            "302"  : { prevPoint: "b3b", size: "l", x:  38, y: 220, entry: "b" },
+            "303"  : { prevPoint: "b3b", size: "l", x:  16, y: 220, entry: "b" },
+            "303-1": { prevPoint: "b3b", size: "l", x:  16, y: 320, entry: "t" },
+            "305"  : { prevPoint: "b3b", size: "l", x:  38, y: 320, entry: "t" },
+            "306"  : { prevPoint: "b3b", size: "l", x:  74, y: 320, entry: "t" },
+            "307"  : { prevPoint: "b3b", size: "l", x:  96, y: 320, entry: "t" },
+            "308"  : { prevPoint: "b3b", size: "l", x: 117, y: 320, entry: "t" },
+            "309"  : { prevPoint: "b3b", size: "l", x: 139, y: 320, entry: "t" },
+            "310"  : { prevPoint: "b3b", size: "l", x: 173, y: 320, entry: "t" },
+            "311"  : { prevPoint: "b3b", size: "l", x: 196, y: 320, entry: "t" },
+            "312"  : { prevPoint: "b3b", size: "l", x: 218, y: 320, entry: "t" },
+            "313"  : { prevPoint: "b3b", size: "l", x: 241, y: 320, entry: "t" },
+            "313-1": { prevPoint: "b3b", size: "l", x: 275, y: 320, entry: "t" },
+            "315"  : { prevPoint: "b3b", size: "l", x: 297, y: 320, entry: "t" },
+            "316"  : { prevPoint: "b3b", size: "l", x: 318, y: 320, entry: "t" },
+            "317"  : { prevPoint: "b3b", size: "l", x: 340, y: 320, entry: "t" },
+            "318"  : { prevPoint: "b3b", size: "l", x: 375, y: 320, entry: "t" },
+            "319"  : { prevPoint: "b3b", size: "s", x: 397, y: 320, entry: "t" },
+            "320"  : { prevPoint: "b3b", size: "l", x: 417, y: 320, entry: "t" },
+            "321"  : { prevPoint: "b3b", size: "l", x: 439, y: 320, entry: "t" },
+            "322"  : { prevPoint: "b3b", size: "l", x: 466, y: 320, entry: "t" },
+            "323"  : { prevPoint: "b3b", size: "l", x: 488, y: 320, entry: "t" },
+            "323-1": { prevPoint: "b3b", size: "l", x: 515, y: 320, entry: "t" },
+            "325"  : { prevPoint: "b3b", size: "l", x: 537, y: 320, entry: "t" },
+            "326"  : { prevPoint: "b3b", size: "s", x: 559, y: 320, entry: "t" },
+            "327"  : { prevPoint: "b3b", size: "l", x: 579, y: 320, entry: "t" },
+            "328"  : { prevPoint: "b3b", size: "l", x: 614, y: 320, entry: "t" },
+            "329"  : { prevPoint: "b3b", size: "l", x: 636, y: 320, entry: "t" },
+            "330"  : { prevPoint: "b3b", size: "l", x: 658, y: 320, entry: "t" },
+            "331"  : { prevPoint: "b3b", size: "l", x: 680, y: 320, entry: "t" },
+            "332"  : { prevPoint: "b3b", size: "l", x: 714, y: 320, entry: "t" },
+            "333"  : { prevPoint: "b3b", size: "l", x: 736, y: 320, entry: "t" },
+            "333-1": { prevPoint: "b3b", size: "l", x: 759, y: 320, entry: "t" },
+            "335"  : { prevPoint: "b3b", size: "l", x: 782, y: 320, entry: "t" },
+            "336"  : { prevPoint: "b3b", size: "l", x: 815, y: 320, entry: "t" },
+            "337"  : { prevPoint: "b3b", size: "l", x: 837, y: 320, entry: "t" },
+            "338"  : { prevPoint: "b3b", size: "l", x: 859, y: 320, entry: "t" },
+            "339"  : { prevPoint: "b3b", size: "l", x: 881, y: 320, entry: "t" },
+            "340"  : { prevPoint: "b3b", size: "l", x: 915, y: 320, entry: "t" },
+            "341"  : { prevPoint: "b3b", size: "l", x: 937, y: 320, entry: "t" },
+            "342"  : { prevPoint: "b3b", size: "l", x: 959, y: 320, entry: "t" },
+            "343"  : { prevPoint: "b3b", size: "l", x: 981, y: 320, entry: "t" },
+            "343-1": { prevPoint: "b4a", size: "l", x: 981, y:  47, entry: "b" },
+            "345"  : { prevPoint: "b4a", size: "l", x: 959, y:  47, entry: "b" },
+            "346"  : { prevPoint: "b4a", size: "l", x: 937, y:  47, entry: "b" },
+            "347"  : { prevPoint: "b4a", size: "l", x: 915, y:  47, entry: "b" },
+            "348"  : { prevPoint: "b4a", size: "l", x: 881, y:  47, entry: "b" },
+            "349"  : { prevPoint: "b4a", size: "l", x: 859, y:  47, entry: "b" },
+            "350"  : { prevPoint: "b4a", size: "l", x: 837, y:  47, entry: "b" },
+            "351"  : { prevPoint: "b4a", size: "l", x: 815, y:  47, entry: "b" },
+            "352"  : { prevPoint: "b4a", size: "l", x: 781, y:  47, entry: "b" },
+            "353"  : { prevPoint: "b4a", size: "l", x: 759, y:  47, entry: "b" },
+            "353-1": { prevPoint: "b4a", size: "l", x: 736, y:  47, entry: "b" },
+            "355"  : { prevPoint: "b4a", size: "l", x: 714, y:  47, entry: "b" },
+            "356"  : { prevPoint: "b4a", size: "l", x: 680, y:  47, entry: "b" },
+            "357"  : { prevPoint: "b4a", size: "l", x: 658, y:  47, entry: "b" },
+            "358"  : { prevPoint: "b4a", size: "l", x: 636, y:  47, entry: "b" },
+            "359"  : { prevPoint: "b4a", size: "l", x: 614, y:  47, entry: "b" },
+            "360"  : { prevPoint: "b4a", size: "l", x: 579, y:  47, entry: "b" },
+            "361"  : { prevPoint: "b4a", size: "s", x: 559, y:  47, entry: "b" },
+            "362"  : { prevPoint: "b4a", size: "l", x: 537, y:  47, entry: "b" },
+            "363"  : { prevPoint: "b4a", size: "l", x: 515, y:  47, entry: "b" },
+            "363-1": { prevPoint: "b4a", size: "l", x: 488, y:  47, entry: "b" },
+            "365"  : { prevPoint: "b4a", size: "l", x: 466, y:  47, entry: "b" },
+            "366"  : { prevPoint: "b4a", size: "l", x: 439, y:  47, entry: "b" },
+            "367"  : { prevPoint: "b4a", size: "l", x: 417, y:  47, entry: "b" },
+            "368"  : { prevPoint: "b4a", size: "s", x: 397, y:  47, entry: "b" },
+            "369"  : { prevPoint: "b4a", size: "l", x: 375, y:  47, entry: "b" },
+            "370"  : { prevPoint: "b4a", size: "l", x: 340, y:  47, entry: "b" },
+            "371"  : { prevPoint: "b4a", size: "l", x: 318, y:  47, entry: "b" },
+            "372"  : { prevPoint: "b4a", size: "l", x: 297, y:  47, entry: "b" },
+            "373"  : { prevPoint: "b4a", size: "l", x: 275, y:  47, entry: "b" },
+            "373-1": { prevPoint: "b4a", size: "l", x: 241, y:  47, entry: "b" },
+            "375"  : { prevPoint: "b4a", size: "l", x: 218, y:  47, entry: "b" },
+            "376"  : { prevPoint: "b4a", size: "l", x: 195, y:  47, entry: "b" },
+            "377"  : { prevPoint: "b4a", size: "l", x: 173, y:  47, entry: "b" },
+            "378"  : { prevPoint: "b4a", size: "l", x: 139, y:  47, entry: "b" },
+            "379"  : { prevPoint: "b4a", size: "l", x: 117, y:  47, entry: "b" },
+            "380"  : { prevPoint: "b4a", size: "l", x:  95, y:  47, entry: "b" },
+            "381"  : { prevPoint: "b4a", size: "l", x:  73, y:  47, entry: "b" },
+            "382"  : { prevPoint: "b4a", size: "l", x:  38, y:  47, entry: "b" },
+            "383"  : { prevPoint: "b4a", size: "l", x:  16, y:  47, entry: "b" },
+            "383-1": { prevPoint: "b4a", size: "l", x:  16, y: 147, entry: "t" },
+            "385"  : { prevPoint: "b4a", size: "l", x:  38, y: 147, entry: "t" },
+            "386"  : { prevPoint: "b4a", size: "l", x:  74, y: 147, entry: "t" },
+            "387"  : { prevPoint: "b4a", size: "l", x:  96, y: 147, entry: "t" },
+            "388"  : { prevPoint: "b4a", size: "l", x: 119, y: 147, entry: "t" },
+            "389"  : { prevPoint: "b4a", size: "l", x: 141, y: 147, entry: "t" },
+            "390"  : { prevPoint: "b4a", size: "l", x: 273, y: 147, entry: "t" },
+            "391"  : { prevPoint: "b4a", size: "l", x: 295, y: 147, entry: "t" },
+            "392"  : { prevPoint: "b4a", size: "l", x: 318, y: 147, entry: "t" },
+            "393"  : { prevPoint: "b4a", size: "l", x: 340, y: 147, entry: "t" },
+            "393-1": { prevPoint: "b4a", size: "l", x: 375, y: 147, entry: "t" },
+            "395"  : { prevPoint: "b4a", size: "s", x: 397, y: 147, entry: "t" },
+            "396"  : { prevPoint: "b4a", size: "l", x: 417, y: 147, entry: "t" },
+            "397"  : { prevPoint: "b4a", size: "l", x: 439, y: 147, entry: "t" },
+            "398"  : { prevPoint: "b4a", size: "l", x: 466, y: 147, entry: "t" },
+            "399"  : { prevPoint: "b4a", size: "l", x: 488, y: 147, entry: "t" },
+            "400"  : { prevPoint: "b4a", size: "l", x: 515, y: 147, entry: "t" },
+            "401"  : { prevPoint: "b4a", size: "l", x: 537, y: 147, entry: "t" },
+            "402"  : { prevPoint: "b4a", size: "s", x: 559, y: 147, entry: "t" },
+            "403"  : { prevPoint: "b4a", size: "l", x: 579, y: 147, entry: "t" },
+            "403-1": { prevPoint: "b4a", size: "l", x: 615, y: 151, entry: "t" },
+            "405"  : { prevPoint: "b4a", size: "l", x: 637, y: 151, entry: "t" },
+            "406"  : { prevPoint: "b4a", size: "l", x: 659, y: 151, entry: "t" },
+            "407"  : { prevPoint: "b4a", size: "l", x: 681, y: 151, entry: "t" },
+            "408"  : { prevPoint: "b4a", size: "l", x: 813, y: 159, entry: "t" },
+            "409"  : { prevPoint: "b4a", size: "l", x: 915, y: 156, entry: "t" },
+            "410"  : { prevPoint: "b4a", size: "l", x: 937, y: 156, entry: "t" },
+            "411"  : { prevPoint: "b4a", size: "l", x: 959, y: 156, entry: "t" },
+            "412"  : { prevPoint: "b4a", size: "l", x: 981, y: 156, entry: "t" },
+            "413"  : { prevPoint: "b4b", size: "l", x: 981, y: 204, entry: "b" },
+            "413-1": { prevPoint: "b4b", size: "l", x: 959, y: 204, entry: "b" },
+            "415"  : { prevPoint: "b4b", size: "l", x: 937, y: 204, entry: "b" },
+            "416"  : { prevPoint: "b4b", size: "l", x: 915, y: 204, entry: "b" },
+            "417"  : { prevPoint: "b4b", size: "l", x: 813, y: 208, entry: "b" },
+            "418"  : { prevPoint: "b4b", size: "l", x: 681, y: 216, entry: "b" },
+            "419"  : { prevPoint: "b4b", size: "l", x: 659, y: 216, entry: "b" },
+            "420"  : { prevPoint: "b4b", size: "l", x: 637, y: 216, entry: "b" },
+            "421"  : { prevPoint: "b4b", size: "l", x: 615, y: 216, entry: "b" },
+            "422"  : { prevPoint: "b4b", size: "l", x: 579, y: 220, entry: "b" },
+            "423"  : { prevPoint: "b4b", size: "s", x: 559, y: 220, entry: "b" },
+            "423-1": { prevPoint: "b4b", size: "l", x: 537, y: 220, entry: "b" },
+            "425"  : { prevPoint: "b4b", size: "l", x: 515, y: 220, entry: "b" },
+            "426"  : { prevPoint: "b4b", size: "l", x: 488, y: 220, entry: "b" },
+            "427"  : { prevPoint: "b4b", size: "l", x: 466, y: 220, entry: "b" },
+            "428"  : { prevPoint: "b4b", size: "l", x: 439, y: 220, entry: "b" },
+            "429"  : { prevPoint: "b4b", size: "l", x: 417, y: 220, entry: "b" },
+            "430"  : { prevPoint: "b4b", size: "s", x: 397, y: 220, entry: "b" },
+            "431"  : { prevPoint: "b4b", size: "l", x: 375, y: 220, entry: "b" },
+            "432"  : { prevPoint: "b4b", size: "l", x: 340, y: 220, entry: "b" },
+            "433"  : { prevPoint: "b4b", size: "l", x: 318, y: 220, entry: "b" },
+            "433-1": { prevPoint: "b4b", size: "l", x: 295, y: 220, entry: "b" },
+            "435"  : { prevPoint: "b4b", size: "l", x: 273, y: 220, entry: "b" },
+            "436"  : { prevPoint: "b4b", size: "l", x: 141, y: 220, entry: "b" },
+            "437"  : { prevPoint: "b4b", size: "l", x: 119, y: 220, entry: "b" },
+            "438"  : { prevPoint: "b4b", size: "l", x:  96, y: 220, entry: "b" },
+            "439"  : { prevPoint: "b4b", size: "l", x:  74, y: 220, entry: "b" },
+            "440"  : { prevPoint: "b4b", size: "l", x:  38, y: 220, entry: "b" },
+            "441"  : { prevPoint: "b4b", size: "l", x:  16, y: 220, entry: "b" },
+            "442"  : { prevPoint: "b4b", size: "l", x:  16, y: 320, entry: "t" },
+            "443"  : { prevPoint: "b4b", size: "l", x:  38, y: 320, entry: "t" },
+            "443-1": { prevPoint: "b4b", size: "l", x:  74, y: 320, entry: "t" },
+            "445"  : { prevPoint: "b4b", size: "l", x:  96, y: 320, entry: "t" },
+            "446"  : { prevPoint: "b4b", size: "l", x: 117, y: 320, entry: "t" },
+            "447"  : { prevPoint: "b4b", size: "l", x: 139, y: 320, entry: "t" },
+            "448"  : { prevPoint: "b4b", size: "l", x: 173, y: 320, entry: "t" },
+            "449"  : { prevPoint: "b4b", size: "l", x: 196, y: 320, entry: "t" },
+            "450"  : { prevPoint: "b4b", size: "l", x: 218, y: 320, entry: "t" },
+            "451"  : { prevPoint: "b4b", size: "l", x: 241, y: 320, entry: "t" },
+            "452"  : { prevPoint: "b4b", size: "l", x: 275, y: 320, entry: "t" },
+            "453"  : { prevPoint: "b4b", size: "l", x: 297, y: 320, entry: "t" },
+            "453-1": { prevPoint: "b4b", size: "l", x: 318, y: 320, entry: "t" },
+            "455"  : { prevPoint: "b4b", size: "l", x: 340, y: 320, entry: "t" },
+            "456"  : { prevPoint: "b4b", size: "l", x: 375, y: 320, entry: "t" },
+            "457"  : { prevPoint: "b4b", size: "s", x: 397, y: 320, entry: "t" },
+            "458"  : { prevPoint: "b4b", size: "l", x: 417, y: 320, entry: "t" },
+            "459"  : { prevPoint: "b4b", size: "l", x: 439, y: 320, entry: "t" },
+            "460"  : { prevPoint: "b4b", size: "l", x: 466, y: 320, entry: "t" },
+            "461"  : { prevPoint: "b4b", size: "l", x: 488, y: 320, entry: "t" },
+            "462"  : { prevPoint: "b4b", size: "l", x: 515, y: 320, entry: "t" },
+            "463"  : { prevPoint: "b4b", size: "l", x: 537, y: 320, entry: "t" },
+            "463-1": { prevPoint: "b4b", size: "s", x: 559, y: 320, entry: "t" },
+            "465"  : { prevPoint: "b4b", size: "l", x: 579, y: 320, entry: "t" },
+            "466"  : { prevPoint: "b4b", size: "l", x: 614, y: 320, entry: "t" },
+            "467"  : { prevPoint: "b4b", size: "l", x: 636, y: 320, entry: "t" },
+            "468"  : { prevPoint: "b4b", size: "l", x: 658, y: 320, entry: "t" },
+            "469"  : { prevPoint: "b4b", size: "l", x: 680, y: 320, entry: "t" },
+            "470"  : { prevPoint: "b4b", size: "l", x: 714, y: 320, entry: "t" },
+            "471"  : { prevPoint: "b4b", size: "l", x: 736, y: 320, entry: "t" },
+            "472"  : { prevPoint: "b4b", size: "l", x: 759, y: 320, entry: "t" },
+            "473"  : { prevPoint: "b4b", size: "l", x: 782, y: 320, entry: "t" },
+            "473-1": { prevPoint: "b4b", size: "l", x: 815, y: 320, entry: "t" },
+            "475"  : { prevPoint: "b4b", size: "l", x: 837, y: 320, entry: "t" },
+            "476"  : { prevPoint: "b4b", size: "l", x: 859, y: 320, entry: "t" },
+            "477"  : { prevPoint: "b4b", size: "l", x: 881, y: 320, entry: "t" },
+            "478"  : { prevPoint: "b4b", size: "l", x: 915, y: 320, entry: "t" },
+            "479"  : { prevPoint: "b4b", size: "l", x: 937, y: 320, entry: "t" },
+            "480"  : { prevPoint: "b4b", size: "l", x: 959, y: 320, entry: "t" },
+            "481"  : { prevPoint: "b4b", size: "l", x: 981, y: 320, entry: "t" }
+        }
+    };
+
+    $(function main() {
+        const parkingData = getParkingDataFromParams();
+        if (parkingData != null) {
+            renderMap(parkingData);
+            $('#input, #copy').hide();
+            $('#map').show();
+        } else {
+            $('#input').show();
+            $('#map, #copy').hide();
+            $('#btn').click(function() {
+                const parkingData = queryParkingData($('#search').val());
+                if (parkingData != null) {
+                    renderMap(parkingData);
+                    $('#copy-url').val(location.href.split("?")[0] + "?num=" + parkingData.num);
+                    $('#map, #copy').show();
+                } else {
+                    $('#map, #copy').hide();
+                }
+            });
+            $('#btn-copy').click(function() {
+                navigator.clipboard.writeText($('#copy-url').val());
+            });
+        }
+    });
+
+    function getParkingDataFromParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (!urlParams.has("num")) {
+            return null;
+        }
+        return queryParkingData(urlParams.get("num"));
+    }
+
+    function queryParkingData(query) {
+        if (query == null) {
+            return null;
+        }
+        const pattern = /^(B[1-4]F?-)?0*/;
+        query = query.toUpperCase().trim().replace(pattern, "");
+        if (data.parkingNum.hasOwnProperty(query) && data.parkingNum[query] != null) {
+            const parkingData = data.parkingNum[query];
+            parkingData.label = numToLabel(query);
+            parkingData.num = query;
+            return parkingData;
+        }
+        return null;
+    }
+    
+    function numToLabel(num) {
+        return "000".slice(num.split("-")[0].length) + num;
+    }
+
+    function renderMap(parkingData) {
+        $('#svg-image').attr('href', `images/${parkingData.prevPoint.slice(0, 2).toLowerCase()}.jpg`);
+        $('#svg-floor').text(parkingData.prevPoint.slice(0, 2).toUpperCase());
+
+        let path = data.pathPoints[parkingData.prevPoint];
+        switch (parkingData.entry) {
+            case "t":
+                path += ` H ${parkingData.x + data.sizes[parkingData.size].w / 2}`;
+                path += ` V ${parkingData.y - 7}`;
+                $('#svg-label').text(parkingData.label).attr({
+                    'x': Math.max(0, parkingData.x + data.sizes[parkingData.size].w / 2 - 18 * parkingData.label.length / 2),
+                    'y': parkingData.y + data.sizes[parkingData.size].h + 26
+                });
+                break;
+            case "b":
+                path += ` H ${parkingData.x + data.sizes[parkingData.size].w / 2}`;
+                path += ` V ${parkingData.y + data.sizes[parkingData.size].h + 7}`;
+                $('#svg-label').text(parkingData.label).attr({
+                    'x': Math.max(0, parkingData.x + data.sizes[parkingData.size].w / 2 - 18 * parkingData.label.length / 2),
+                    'y': parkingData.y - 3
+                });
+                break;
+            case "l":
+                path += ` H ${parkingData.x - 7}`;
+                $('#svg-label').text(parkingData.label).attr({
+                    'x': parkingData.x + data.sizes[parkingData.size].w + 3,
+                    'y': parkingData.y + data.sizes[parkingData.size].h
+                });
+                break;
+            case "r":
+                path += ` H ${parkingData.x + data.sizes[parkingData.size].w + 7}`;
+                $('#svg-label').text(parkingData.label).attr({
+                    'x': parkingData.x - 18 * parkingData.label.length - 3,
+                    'y': parkingData.y + data.sizes[parkingData.size].h
+                });
+                break;
+            default:
+                break;
+        }
+        $('#svg-path').attr('d', path);
+
+        $('#svg-rect').attr({
+            'x': parkingData.x,
+            'y': parkingData.y,
+            'width': data.sizes[parkingData.size].w,
+            'height': data.sizes[parkingData.size].h
+        });
+    }
+
+    </script>
+
+    <body>
+        <div id="container" style="text-align: center;">
+            <div id="input">
+                <input id="search" type="text" style="height: 30px; text-align: center;" placeholder="請輸入車位編號" />
+                <input id="btn" type="button" value="查詢位置" style="height: 30px;" />
+            </div>
+            <div id="map">
+                <svg width="1112" height="409" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id='head' orient="auto" markerWidth="3" markerHeight="4" refX="0.1" refY="2">
+                            <path d="M0,0 V4 L2,2 Z" fill="red" />
+                        </marker>
+                    </defs>
+                    <image id="svg-image" opacity="0.3" />
+                    <text id="svg-floor" x="1022" y="65" fill="red" font-size="80"></text>
+                    <text id="svg-label" fill="red" font-size="30" font-weight="bold" background="white"></text>
+                    <path id="svg-path" stroke="red" stroke-width="3" fill="none" marker-end="url(#head)" />
+                    <rect id="svg-rect" stroke="red" stroke-width="3" fill="rgb(244,204,204)" fill-opacity="0.5" />
+                </svg>
+            </div>
+            <div id="copy">
+                <span>分享連結：</span>
+                <input id="copy-url" type="text" style="width: 600px;" />
+                <input id="btn-copy" type="button" value="複製" style="height: 30px;" />
+            </div>
+        </div>
+    </body>
+
+</html>
