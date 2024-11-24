@@ -574,7 +574,7 @@
         } else {
             $('#input').show();
             $('#map, #copy').hide();
-            $('#btn').click(function() {
+            $('#form').submit(function() {
                 const parkingData = queryParkingData($('#search').val());
                 if (parkingData != null) {
                     renderMap(parkingData);
@@ -583,6 +583,7 @@
                 } else {
                     $('#map, #copy').hide();
                 }
+                return false;
             });
             $('#btn-copy').click(function() {
                 navigator.clipboard.writeText($('#copy-url').val());
@@ -671,8 +672,10 @@
     <body>
         <div id="container" style="text-align: center;">
             <div id="input">
-                <input id="search" type="text" style="height: 30px; text-align: center;" placeholder="請輸入車位編號" />
-                <input id="btn" type="button" value="查詢位置" style="height: 30px;" />
+                <form id="form">
+                    <input id="search" type="text" style="height: 30px; text-align: center;" placeholder="請輸入車位編號" />
+                    <input type="submit" value="查詢位置" style="height: 30px;" />
+                </form>
             </div>
             <div id="map">
                 <svg width="1112" height="409" xmlns="http://www.w3.org/2000/svg">
