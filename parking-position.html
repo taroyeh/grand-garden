@@ -603,7 +603,7 @@
         if (query == null) {
             return null;
         }
-        const pattern = /^(B[1-4]F?-)?0*/;
+        const pattern = /^(B[1-4]F?[\- ]*)?0*/;
         query = query.toUpperCase().trim().replace(pattern, "");
         if (data.parkingNum.hasOwnProperty(query) && data.parkingNum[query] != null) {
             const parkingData = data.parkingNum[query];
