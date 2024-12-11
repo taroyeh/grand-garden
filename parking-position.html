@@ -616,6 +616,9 @@
         }
         const pattern = /^(B[1-4]F?[\- ]*)?0*/;
         query = query.toUpperCase().trim().replace(pattern, "");
+        if (query.slice(-1) == "4") {
+            query = "" + query.slice(0, query.length - 1) + "3-1";
+        }
         if (data.parkingNum.hasOwnProperty(query) && data.parkingNum[query] != null) {
             const parkingData = data.parkingNum[query];
             parkingData.label = numToLabel(query);
