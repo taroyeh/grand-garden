@@ -683,15 +683,15 @@
 
     </script>
 
-    <body>
-        <div id="container" style="text-align: center;">
-            <div id="input">
+    <body style="">
+        <div id="container" style="width: 1132px; text-align: center; margin-left: auto; margin-right: auto;">
+            <div id="input" style="margin: 20px 10px;">
                 <form id="form">
                     <input id="search" type="text" style="height: 30px; text-align: center;" placeholder="請輸入車位編號" />
                     <input type="submit" value="查詢位置" style="height: 30px;" />
                 </form>
             </div>
-            <div id="map">
+            <div id="map" style="margin: 20px 10px;">
                 <svg width="1112" height="409" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <marker id='head' orient="auto" markerWidth="3" markerHeight="4" refX="0.1" refY="2">
@@ -705,13 +705,13 @@
                     <rect id="svg-rect" stroke="red" stroke-width="3" fill="rgb(244,204,204)" fill-opacity="0.5" />
                 </svg>
             </div>
-            <div id="copy" style="margin-top: 20px;">
+            <div id="copy" style="margin: 20px 10px;">
                 <span>分享連結：</span>
                 <input id="copy-url" type="text" style="width: 600px;" />
                 <input id="btn-copy" type="button" value="複製" style="height: 30px;" />
             </div>
-            <div id="announcement" style="margin-top: 20px;">
-                <img src="images/parking-announcement.jpg" />
+            <div id="announcement" style="margin: 20px 10px;">
+                <img src="images/parking-announcement.jpg" width="1112"/>
             </div>
         </div>
     </body>
